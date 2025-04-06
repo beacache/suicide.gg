@@ -99,8 +99,15 @@ function library:CreateWindow(options)
     window.UI.Content.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     window.UI.Content.ClipsDescendants = true
     window.UI.Content.Parent = window.UI.MainFrame
+    
+    function window:AddTab(name)
+        local tab = {
+            Name = name,
+            Elements = {},
+            UI = {}
+        }
 
-    function tab:AddLeftGroupbox(name)
+        function tab:AddLeftGroupbox(name)
             local groupbox = {
                 Name = name,
                 UI = {}
@@ -123,16 +130,34 @@ function library:CreateWindow(options)
             
             table.insert(self.Elements, groupbox)
             self.UI.Content.CanvasSize = UDim2.new(0, 0, 0, self.UI.Content.UIListLayout.AbsoluteContentSize.Y)
-            
+
+            function tab:AddLeftGroupbox(name)
+
+            function groupbox:AddToggle(id, options)
+                local toggle = {
+                    State = options.Default or false,
+                    Callback = options.Callback or function() end
+                }
+                
+                toggle.UI.Button = Instance.new("TextButton")
+                toggle.UI.Button.Size = UDim2.new(1, -10, 0, 20)
+                toggle.UI.Button.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 1) * 25)
+                toggle.UI.Button.Text = options.Text or "Toggle"
+                toggle.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+                toggle.UI.Button.BackgroundColor3 = toggle.State and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
+                toggle.UI.Button.Parent = self.UI.Frame
+                
+                toggle.UI.Button.MouseButton1Click:Connect(function()
+                    toggle.State = not toggle.State
+                    toggle.UI.Button.BackgroundColor3 = toggle.State and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
+                    toggle.Callback(toggle.State)
+                end)
+                
+                return toggle
+            end
+    
             return groupbox
         end
-    
-    function window:AddTab(name)
-        local tab = {
-            Name = name,
-            Elements = {},
-            UI = {}
-        }
         
         tab.UI.Button = Instance.new("TextButton")
         tab.UI.Button.Size = UDim2.new(1, -10, 0, 30)
