@@ -46,6 +46,7 @@ do
     getgenv()[Solara.ProtectedName] = true
 end
 
+-- WINDOW CREATE
 function library:CreateWindow(options)
     options = options or {}
     
@@ -60,14 +61,12 @@ function library:CreateWindow(options)
         UI = {}
     }
     
-    -- Создание основного GUI
     window.UI.ScreenGui = Instance.new("ScreenGui")
     window.UI.ScreenGui.Name = "SolaraHub"
     window.UI.ScreenGui.Parent = game:GetService("CoreGui")
     window.UI.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     window.UI.ScreenGui.ResetOnSpawn = false
     
-    -- Основное окно
     window.UI.MainFrame = Instance.new("Frame")
     window.UI.MainFrame.Size = UDim2.new(0, 500, 0, 400)
     window.UI.MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
@@ -79,7 +78,6 @@ function library:CreateWindow(options)
         window.UI.MainFrame.Position = UDim2.new(0, 100, 0, 100)
     end
     
-    -- Заголовок окна
     window.UI.Title = Instance.new("TextLabel")
     window.UI.Title.Size = UDim2.new(1, 0, 0, 30)
     window.UI.Title.Text = window.Options.Title
@@ -89,14 +87,12 @@ function library:CreateWindow(options)
     window.UI.Title.TextSize = 16
     window.UI.Title.Parent = window.UI.MainFrame
     
-    -- Контейнер для кнопок вкладок
     window.UI.TabButtons = Instance.new("Frame")
     window.UI.TabButtons.Size = UDim2.new(0, 120, 1, -30)
     window.UI.TabButtons.Position = UDim2.new(0, 0, 0, 30)
     window.UI.TabButtons.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
     window.UI.TabButtons.Parent = window.UI.MainFrame
     
-    -- Контейнер для контента вкладок
     window.UI.Content = Instance.new("Frame")
     window.UI.Content.Size = UDim2.new(1, -120, 1, -30)
     window.UI.Content.Position = UDim2.new(0, 120, 0, 30)
@@ -104,7 +100,6 @@ function library:CreateWindow(options)
     window.UI.Content.ClipsDescendants = true
     window.UI.Content.Parent = window.UI.MainFrame
     
-    -- Функция для добавления вкладки
     function window:AddTab(name)
         local tab = {
             Name = name,
@@ -112,7 +107,6 @@ function library:CreateWindow(options)
             UI = {}
         }
         
-        -- Кнопка вкладки
         tab.UI.Button = Instance.new("TextButton")
         tab.UI.Button.Size = UDim2.new(1, -10, 0, 30)
         tab.UI.Button.Position = UDim2.new(0, 5, 0, 5 + (#self.Tabs * 35))
@@ -123,7 +117,6 @@ function library:CreateWindow(options)
         tab.UI.Button.TextSize = 14
         tab.UI.Button.Parent = window.UI.TabButtons
         
-        -- Контент вкладки
         tab.UI.Content = Instance.new("ScrollingFrame")
         tab.UI.Content.Size = UDim2.new(1, 0, 1, 0)
         tab.UI.Content.BackgroundTransparency = 1
@@ -137,12 +130,10 @@ function library:CreateWindow(options)
         
         table.insert(self.Tabs, tab)
         
-        -- Активация первой вкладки
         if #self.Tabs == 1 then
             self:SwitchTab(1)
         end
         
-        -- Обработчик клика по вкладке
         tab.UI.Button.MouseButton1Click:Connect(function()
             self:SwitchTab(table.find(self.Tabs, tab))
         end)
@@ -150,7 +141,6 @@ function library:CreateWindow(options)
         return tab
     end
     
-    -- Функция переключения вкладок
     function window:SwitchTab(index)
         for i, tab in ipairs(self.Tabs) do
             tab.UI.Content.Visible = (i == index)
@@ -158,7 +148,6 @@ function library:CreateWindow(options)
         end
     end
     
-    -- Автопоказ окна
     if window.Options.AutoShow then
         window.UI.ScreenGui.Enabled = true
     end
