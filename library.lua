@@ -99,6 +99,33 @@ function library:CreateWindow(options)
     window.UI.Content.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     window.UI.Content.ClipsDescendants = true
     window.UI.Content.Parent = window.UI.MainFrame
+
+    function tab:AddLeftGroupbox(name)
+            local groupbox = {
+                Name = name,
+                UI = {}
+            }
+            
+            groupbox.UI.Frame = Instance.new("Frame")
+            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 200) -- Ширина 45% для "левого" groupbox
+            groupbox.UI.Frame.Position = UDim2.new(0, 5, 0, 5 + (#self.Elements * 210))
+            groupbox.UI.Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+            groupbox.UI.Frame.Parent = self.UI.Content
+            
+            groupbox.UI.Title = Instance.new("TextLabel")
+            groupbox.UI.Title.Size = UDim2.new(1, 0, 0, 20)
+            groupbox.UI.Title.Text = name
+            groupbox.UI.Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+            groupbox.UI.Title.BackgroundTransparency = 1
+            groupbox.UI.Title.Font = Enum.Font.GothamBold
+            groupbox.UI.Title.TextSize = 14
+            groupbox.UI.Title.Parent = groupbox.UI.Frame
+            
+            table.insert(self.Elements, groupbox)
+            self.UI.Content.CanvasSize = UDim2.new(0, 0, 0, self.UI.Content.UIListLayout.AbsoluteContentSize.Y)
+            
+            return groupbox
+        end
     
     function window:AddTab(name)
         local tab = {
