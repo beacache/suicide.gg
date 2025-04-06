@@ -46,6 +46,126 @@ do
     getgenv()[Solara.ProtectedName] = true
 end
 
+function library:CreateWindow(options)
+    options = options or {}
+    
+    local window = {
+        Tabs = {},
+        Options = {
+            Title = options.Title or "Solara Hub",
+            Center = options.Center or true,
+            AutoShow = options.AutoShow or true,
+            TabPadding = options.TabPadding or 10
+        },
+        UI = {}
+    }
+    
+    -- Создание основного GUI
+    window.UI.ScreenGui = Instance.new("ScreenGui")
+    window.UI.ScreenGui.Name = "SolaraHub"
+    window.UI.ScreenGui.Parent = game:GetService("CoreGui")
+    window.UI.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    window.UI.ScreenGui.ResetOnSpawn = false
+    
+    -- Основное окно
+    window.UI.MainFrame = Instance.new("Frame")
+    window.UI.MainFrame.Size = UDim2.new(0, 500, 0, 400)
+    window.UI.MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    window.UI.MainFrame.Parent = window.UI.ScreenGui
+    
+    if window.Options.Center then
+        window.UI.MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
+    else
+        window.UI.MainFrame.Position = UDim2.new(0, 100, 0, 100)
+    end
+    
+    -- Заголовок окна
+    window.UI.Title = Instance.new("TextLabel")
+    window.UI.Title.Size = UDim2.new(1, 0, 0, 30)
+    window.UI.Title.Text = window.Options.Title
+    window.UI.Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    window.UI.Title.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    window.UI.Title.Font = Enum.Font.GothamBold
+    window.UI.Title.TextSize = 16
+    window.UI.Title.Parent = window.UI.MainFrame
+    
+    -- Контейнер для кнопок вкладок
+    window.UI.TabButtons = Instance.new("Frame")
+    window.UI.TabButtons.Size = UDim2.new(0, 120, 1, -30)
+    window.UI.TabButtons.Position = UDim2.new(0, 0, 0, 30)
+    window.UI.TabButtons.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    window.UI.TabButtons.Parent = window.UI.MainFrame
+    
+    -- Контейнер для контента вкладок
+    window.UI.Content = Instance.new("Frame")
+    window.UI.Content.Size = UDim2.new(1, -120, 1, -30)
+    window.UI.Content.Position = UDim2.new(0, 120, 0, 30)
+    window.UI.Content.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    window.UI.Content.ClipsDescendants = true
+    window.UI.Content.Parent = window.UI.MainFrame
+    
+    -- Функция для добавления вкладки
+    function window:AddTab(name)
+        local tab = {
+            Name = name,
+            Elements = {},
+            UI = {}
+        }
+        
+        -- Кнопка вкладки
+        tab.UI.Button = Instance.new("TextButton")
+        tab.UI.Button.Size = UDim2.new(1, -10, 0, 30)
+        tab.UI.Button.Position = UDim2.new(0, 5, 0, 5 + (#self.Tabs * 35))
+        tab.UI.Button.Text = name
+        tab.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+        tab.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+        tab.UI.Button.Font = Enum.Font.GothamSemibold
+        tab.UI.Button.TextSize = 14
+        tab.UI.Button.Parent = window.UI.TabButtons
+        
+        -- Контент вкладки
+        tab.UI.Content = Instance.new("ScrollingFrame")
+        tab.UI.Content.Size = UDim2.new(1, 0, 1, 0)
+        tab.UI.Content.BackgroundTransparency = 1
+        tab.UI.Content.Visible = false
+        tab.UI.Content.ScrollBarThickness = 5
+        tab.UI.Content.Parent = window.UI.Content
+        
+        local contentLayout = Instance.new("UIListLayout")
+        contentLayout.Padding = UDim.new(0, window.Options.TabPadding)
+        contentLayout.Parent = tab.UI.Content
+        
+        table.insert(self.Tabs, tab)
+        
+        -- Активация первой вкладки
+        if #self.Tabs == 1 then
+            self:SwitchTab(1)
+        end
+        
+        -- Обработчик клика по вкладке
+        tab.UI.Button.MouseButton1Click:Connect(function()
+            self:SwitchTab(table.find(self.Tabs, tab))
+        end)
+        
+        return tab
+    end
+    
+    -- Функция переключения вкладок
+    function window:SwitchTab(index)
+        for i, tab in ipairs(self.Tabs) do
+            tab.UI.Content.Visible = (i == index)
+            tab.UI.Button.BackgroundColor3 = (i == index) and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
+        end
+    end
+    
+    -- Автопоказ окна
+    if window.Options.AutoShow then
+        window.UI.ScreenGui.Enabled = true
+    end
+    
+    return window
+end
+
 -- UTILS
 local function Draggable(UI)
     local dragToggle, dragInput, dragStart, dragPos
