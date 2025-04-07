@@ -5,7 +5,6 @@ local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
 
--- Перемещаем Notify в SolaraHub
 function SolaraHub:Notify(message, duration)
     print("[NOTIFY] " .. message)
     duration = duration or 3
@@ -13,7 +12,7 @@ function SolaraHub:Notify(message, duration)
     notification.Size = UDim2.new(0, 200, 0, 50)
     notification.Position = UDim2.new(1, -210, 1, -60)
     notification.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    notification.Parent = self.ScreenGui or game:GetService("CoreGui") -- Используем CoreGui, если ScreenGui не задан
+    notification.Parent = self.ScreenGui or game:GetService("CoreGui")
     
     local notifCorner = Instance.new("UICorner")
     notifCorner.CornerRadius = UDim.new(0, 6)
@@ -157,7 +156,6 @@ function SolaraHub:CreateWindow(options)
     window.UI.ScreenGui.Enabled = false
     print("[DEBUG] ScreenGui created, Enabled = " .. tostring(window.UI.ScreenGui.Enabled))
     
-    -- Сохраняем ScreenGui в SolaraHub для использования в Notify
     SolaraHub.ScreenGui = window.UI.ScreenGui
     
     print("[DEBUG] Creating MainFrame")
@@ -198,7 +196,7 @@ function SolaraHub:CreateWindow(options)
     window.UI.Title.Size = UDim2.new(1, -50, 0, 40)
     window.UI.Title.Position = UDim2.new(0, 40, 0, 0)
     window.UI.Title.Text = window.Options.Title
-    window.UI.Title.TextColor3 = Color3.fromRGB(200, 200, 200)
+    window.UI.Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     window.UI.Title.BackgroundTransparency = 1
     window.UI.Title.Font = Enum.Font.GothamBold
     window.UI.Title.TextSize = 16
@@ -214,7 +212,7 @@ function SolaraHub:CreateWindow(options)
     local tabButtonsLayout = Instance.new("UIListLayout")
     tabButtonsLayout.FillDirection = Enum.FillDirection.Horizontal
     tabButtonsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    tabButtonsLayout.Padding = UDim.new(0, 5)
+    tabButtonsLayout.Padding = UDim.new(0, 10)
     tabButtonsLayout.Parent = window.UI.TabButtons
     
     window.UI.Content = Instance.new("Frame")
@@ -280,31 +278,34 @@ function SolaraHub:CreateWindow(options)
         }
         
         tab.UI.Button = Instance.new("TextButton")
-        tab.UI.Button.Size = UDim2.new(1 / 4, -5, 0, 30)
-        tab.UI.Button.Text = name
-        tab.UI.Button.TextColor3 = Color3.fromRGB(200, 200, 200)
-        tab.UI.Button.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+        tab.UI.Button.Size = UDim2.new(0, 60, 0, 30)
+        tab.UI.Button.Text = name:upper()
+        tab.UI.Button.TextColor3 = Color3.fromRGB(150, 150, 150)
+        tab.UI.Button.BackgroundTransparency = 1
         tab.UI.Button.Font = Enum.Font.GothamSemibold
         tab.UI.Button.TextSize = 14
         tab.UI.Button.Parent = window.UI.TabButtons
         
-        local tabButtonCorner = Instance.new("UICorner")
-        tabButtonCorner.CornerRadius = UDim.new(0, 6)
-        tabButtonCorner.Parent = tab.UI.Button
+        tab.UI.Underline = Instance.new("Frame")
+        tab.UI.Underline.Size = UDim2.new(0, 30, 0, 2)
+        tab.UI.Underline.Position = UDim2.new(0.5, -15, 1, -2)
+        tab.UI.Underline.BackgroundColor3 = Color3.fromRGB(0, 120, 255) -- Синий акцент
+        tab.UI.Underline.Visible = false
+        tab.UI.Underline.Parent = tab.UI.Button
         
         tab.UI.Button.MouseEnter:Connect(function()
-            if tab.UI.Button.BackgroundColor3 ~= Color3.fromRGB(50, 50, 55) then
+            if tab.UI.Button.TextColor3 ~= Color3.fromRGB(255, 255, 255) then
                 local tween = TweenService:Create(tab.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                    BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+                    TextColor3 = Color3.fromRGB(200, 200, 200)
                 })
                 tween:Play()
             end
         end)
         
         tab.UI.Button.MouseLeave:Connect(function()
-            if tab.UI.Button.BackgroundColor3 ~= Color3.fromRGB(50, 50, 55) then
+            if tab.UI.Button.TextColor3 ~= Color3.fromRGB(255, 255, 255) then
                 local tween = TweenService:Create(tab.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                    BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+                    TextColor3 = Color3.fromRGB(150, 150, 150)
                 })
                 tween:Play()
             end
@@ -331,10 +332,6 @@ function SolaraHub:CreateWindow(options)
         
         if #self.Tabs == 1 then
             self:SwitchTab(1)
-        end
-        
-        for _, t in ipairs(self.Tabs) do
-            t.UI.Button.Size = UDim2.new(1 / #self.Tabs, -5, 0, 30)
         end
         
         tab.UI.Button.MouseButton1Click:Connect(function()
@@ -367,8 +364,8 @@ function SolaraHub:CreateWindow(options)
             
             groupbox.UI.Title = Instance.new("TextLabel")
             groupbox.UI.Title.Size = UDim2.new(1, 0, 0, 20)
-            groupbox.UI.Title.Text = name
-            groupbox.UI.Title.TextColor3 = Color3.fromRGB(200, 200, 200)
+            groupbox.UI.Title.Text = name:upper()
+            groupbox.UI.Title.TextColor3 = Color3.fromRGB(255, 255, 255)
             groupbox.UI.Title.BackgroundTransparency = 1
             groupbox.UI.Title.Font = Enum.Font.GothamBold
             groupbox.UI.Title.TextSize = 14
@@ -399,35 +396,40 @@ function SolaraHub:CreateWindow(options)
                     UI = {}
                 }
                 
+                toggle.UI.Frame = Instance.new("Frame")
+                toggle.UI.Frame.Size = UDim2.new(1, -10, 0, 25)
+                toggle.UI.Frame.BackgroundTransparency = 1
+                toggle.UI.Frame.Parent = self.UI.Frame
+                
+                toggle.UI.Label = Instance.new("TextLabel")
+                toggle.UI.Label.Size = UDim2.new(0.8, 0, 1, 0)
+                toggle.UI.Label.Text = options.Text or "Toggle"
+                toggle.UI.Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+                toggle.UI.Label.BackgroundTransparency = 1
+                toggle.UI.Label.Font = Enum.Font.Gotham
+                toggle.UI.Label.TextSize = 12
+                toggle.UI.Label.TextXAlignment = Enum.TextXAlignment.Left
+                toggle.UI.Label.Parent = toggle.UI.Frame
+                
+                toggle.UI.Indicator = Instance.new("Frame")
+                toggle.UI.Indicator.Size = UDim2.new(0, 20, 0, 20)
+                toggle.UI.Indicator.Position = UDim2.new(1, -20, 0.5, -10)
+                toggle.UI.Indicator.BackgroundColor3 = toggle.State and Color3.fromRGB(0, 120, 255) or Color3.fromRGB(40, 40, 45)
+                toggle.UI.Indicator.Parent = toggle.UI.Frame
+                
+                local indicatorCorner = Instance.new("UICorner")
+                indicatorCorner.CornerRadius = UDim.new(0, 4)
+                indicatorCorner.Parent = toggle.UI.Indicator
+                
                 toggle.UI.Button = Instance.new("TextButton")
-                toggle.UI.Button.Size = UDim2.new(1, -10, 0, 25)
-                toggle.UI.Button.Text = options.Text or "Toggle"
-                toggle.UI.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
-                toggle.UI.Button.BackgroundColor3 = toggle.State and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(40, 40, 45)
-                toggle.UI.Button.Parent = self.UI.Frame
-                toggle.UI.Button.Visible = true
-                
-                local toggleCorner = Instance.new("UICorner")
-                toggleCorner.CornerRadius = UDim.new(0, 4)
-                toggleCorner.Parent = toggle.UI.Button
-                
-                toggle.UI.Button.MouseEnter:Connect(function()
-                    local tween = TweenService:Create(toggle.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        BackgroundColor3 = toggle.State and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(50, 50, 55)
-                    })
-                    tween:Play()
-                end)
-                
-                toggle.UI.Button.MouseLeave:Connect(function()
-                    local tween = TweenService:Create(toggle.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                        BackgroundColor3 = toggle.State and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(40, 40, 45)
-                    })
-                    tween:Play()
-                end)
+                toggle.UI.Button.Size = UDim2.new(1, 0, 1, 0)
+                toggle.UI.Button.Text = ""
+                toggle.UI.Button.BackgroundTransparency = 1
+                toggle.UI.Button.Parent = toggle.UI.Frame
                 
                 toggle.UI.Button.MouseButton1Click:Connect(function()
                     toggle.State = not toggle.State
-                    toggle.UI.Button.BackgroundColor3 = toggle.State and Color3.fromRGB(50, 50, 60) or Color3.fromRGB(40, 40, 45)
+                    toggle.UI.Indicator.BackgroundColor3 = toggle.State and Color3.fromRGB(0, 120, 255) or Color3.fromRGB(40, 40, 45)
                     toggle.Callback(toggle.State)
                 end)
                 
@@ -453,8 +455,10 @@ function SolaraHub:CreateWindow(options)
                 button.UI.Button = Instance.new("TextButton")
                 button.UI.Button.Size = UDim2.new(1, -10, 0, 25)
                 button.UI.Button.Text = options.Text or "Button"
-                button.UI.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+                button.UI.Button.TextColor3 = Color3.fromRGB(200, 200, 200)
                 button.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+                button.UI.Button.Font = Enum.Font.Gotham
+                button.UI.Button.TextSize = 12
                 button.UI.Button.Parent = self.UI.Frame
                 button.UI.Button.Visible = true
                 
@@ -500,34 +504,48 @@ function SolaraHub:CreateWindow(options)
                 
                 slider.UI.Frame = Instance.new("Frame")
                 slider.UI.Frame.Size = UDim2.new(1, -10, 0, 35)
-                slider.UI.Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+                slider.UI.Frame.BackgroundTransparency = 1
                 slider.UI.Frame.Parent = self.UI.Frame
-                slider.UI.Frame.Visible = true
-                
-                local sliderCorner = Instance.new("UICorner")
-                sliderCorner.CornerRadius = UDim.new(0, 4)
-                sliderCorner.Parent = slider.UI.Frame
                 
                 slider.UI.Label = Instance.new("TextLabel")
-                slider.UI.Label.Size = UDim2.new(1, 0, 0, 20)
-                slider.UI.Label.Text = options.Text .. ": " .. slider.Value
-                slider.UI.Label.TextColor3 = Color3.fromRGB(180, 180, 180)
+                slider.UI.Label.Size = UDim2.new(0.6, 0, 0, 20)
+                slider.UI.Label.Text = options.Text or "Slider"
+                slider.UI.Label.TextColor3 = Color3.fromRGB(200, 200, 200)
                 slider.UI.Label.BackgroundTransparency = 1
                 slider.UI.Label.Font = Enum.Font.Gotham
                 slider.UI.Label.TextSize = 12
+                slider.UI.Label.TextXAlignment = Enum.TextXAlignment.Left
                 slider.UI.Label.Parent = slider.UI.Frame
-                slider.UI.Label.Visible = true
+                
+                slider.UI.ValueLabel = Instance.new("TextLabel")
+                slider.UI.ValueLabel.Size = UDim2.new(0.2, 0, 0, 20)
+                slider.UI.ValueLabel.Position = UDim2.new(0.8, 0, 0, 0)
+                slider.UI.ValueLabel.Text = tostring(slider.Value)
+                slider.UI.ValueLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+                slider.UI.ValueLabel.BackgroundTransparency = 1
+                slider.UI.ValueLabel.Font = Enum.Font.Gotham
+                slider.UI.ValueLabel.TextSize = 12
+                slider.UI.ValueLabel.TextXAlignment = Enum.TextXAlignment.Right
+                slider.UI.ValueLabel.Parent = slider.UI.Frame
                 
                 slider.UI.SliderBar = Instance.new("Frame")
                 slider.UI.SliderBar.Size = UDim2.new(1, 0, 0, 5)
                 slider.UI.SliderBar.Position = UDim2.new(0, 0, 1, -5)
-                slider.UI.SliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+                slider.UI.SliderBar.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
                 slider.UI.SliderBar.Parent = slider.UI.Frame
-                slider.UI.SliderBar.Visible = true
                 
                 local sliderBarCorner = Instance.new("UICorner")
                 sliderBarCorner.CornerRadius = UDim.new(0, 2)
                 sliderBarCorner.Parent = slider.UI.SliderBar
+                
+                slider.UI.Fill = Instance.new("Frame")
+                slider.UI.Fill.Size = UDim2.new((slider.Value - slider.Min) / (slider.Max - slider.Min), 0, 1, 0)
+                slider.UI.Fill.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+                slider.UI.Fill.Parent = slider.UI.SliderBar
+                
+                local fillCorner = Instance.new("UICorner")
+                fillCorner.CornerRadius = UDim.new(0, 2)
+                fillCorner.Parent = slider.UI.Fill
                 
                 local mouse = game.Players.LocalPlayer:GetMouse()
                 local dragging = false
@@ -548,7 +566,8 @@ function SolaraHub:CreateWindow(options)
                     if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
                         local relativeX = math.clamp((input.Position.X - slider.UI.SliderBar.AbsolutePosition.X) / slider.UI.SliderBar.AbsoluteSize.X, 0, 1)
                         slider.Value = math.floor(slider.Min + (slider.Max - slider.Min) * relativeX)
-                        slider.UI.Label.Text = options.Text .. ": " .. slider.Value
+                        slider.UI.ValueLabel.Text = tostring(slider.Value)
+                        slider.UI.Fill.Size = UDim2.new((slider.Value - slider.Min) / (slider.Max - slider.Min), 0, 1, 0)
                         slider.Callback(slider.Value)
                     end
                 end)
@@ -571,13 +590,30 @@ function SolaraHub:CreateWindow(options)
                     UI = {}
                 }
                 
+                dropdown.UI.Frame = Instance.new("Frame")
+                dropdown.UI.Frame.Size = UDim2.new(1, -10, 0, 25)
+                dropdown.UI.Frame.BackgroundTransparency = 1
+                dropdown.UI.Frame.Parent = self.UI.Frame
+                
+                dropdown.UI.Label = Instance.new("TextLabel")
+                dropdown.UI.Label.Size = UDim2.new(0.6, 0, 1, 0)
+                dropdown.UI.Label.Text = options.Text or "Dropdown"
+                dropdown.UI.Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+                dropdown.UI.Label.BackgroundTransparency = 1
+                dropdown.UI.Label.Font = Enum.Font.Gotham
+                dropdown.UI.Label.TextSize = 12
+                dropdown.UI.Label.TextXAlignment = Enum.TextXAlignment.Left
+                dropdown.UI.Label.Parent = dropdown.UI.Frame
+                
                 dropdown.UI.Button = Instance.new("TextButton")
-                dropdown.UI.Button.Size = UDim2.new(1, -10, 0, 25)
-                dropdown.UI.Button.Text = options.Text .. ": " .. (dropdown.Multi and table.concat(dropdown.Selected, ", ") or dropdown.Selected)
-                dropdown.UI.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+                dropdown.UI.Button.Size = UDim2.new(0.4, 0, 1, 0)
+                dropdown.UI.Button.Position = UDim2.new(0.6, 0, 0, 0)
+                dropdown.UI.Button.Text = dropdown.Multi and table.concat(dropdown.Selected, ", ") or tostring(dropdown.Selected)
+                dropdown.UI.Button.TextColor3 = Color3.fromRGB(200, 200, 200)
                 dropdown.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-                dropdown.UI.Button.Parent = self.UI.Frame
-                dropdown.UI.Button.Visible = true
+                dropdown.UI.Button.Font = Enum.Font.Gotham
+                dropdown.UI.Button.TextSize = 12
+                dropdown.UI.Button.Parent = dropdown.UI.Frame
                 
                 local dropdownCorner = Instance.new("UICorner")
                 dropdownCorner.CornerRadius = UDim.new(0, 4)
@@ -617,31 +653,31 @@ function SolaraHub:CreateWindow(options)
                     UI = {}
                 }
                 
+                colorpicker.UI.Frame = Instance.new("Frame")
+                colorpicker.UI.Frame.Size = UDim2.new(1, -10, 0, 25)
+                colorpicker.UI.Frame.BackgroundTransparency = 1
+                colorpicker.UI.Frame.Parent = self.UI.Frame
+                
+                colorpicker.UI.Label = Instance.new("TextLabel")
+                colorpicker.UI.Label.Size = UDim2.new(0.6, 0, 1, 0)
+                colorpicker.UI.Label.Text = options.Title or "Color Picker"
+                colorpicker.UI.Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+                colorpicker.UI.Label.BackgroundTransparency = 1
+                colorpicker.UI.Label.Font = Enum.Font.Gotham
+                colorpicker.UI.Label.TextSize = 12
+                colorpicker.UI.Label.TextXAlignment = Enum.TextXAlignment.Left
+                colorpicker.UI.Label.Parent = colorpicker.UI.Frame
+                
                 colorpicker.UI.Button = Instance.new("TextButton")
-                colorpicker.UI.Button.Size = UDim2.new(1, -10, 0, 25)
-                colorpicker.UI.Button.Text = options.Title or "Color Picker"
-                colorpicker.UI.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+                colorpicker.UI.Button.Size = UDim2.new(0, 20, 0, 20)
+                colorpicker.UI.Button.Position = UDim2.new(1, -20, 0.5, -10)
+                colorpicker.UI.Button.Text = ""
                 colorpicker.UI.Button.BackgroundColor3 = colorpicker.Color
-                colorpicker.UI.Button.Parent = self.UI.Frame
-                colorpicker.UI.Button.Visible = true
+                colorpicker.UI.Button.Parent = colorpicker.UI.Frame
                 
                 local colorpickerCorner = Instance.new("UICorner")
                 colorpickerCorner.CornerRadius = UDim.new(0, 4)
                 colorpickerCorner.Parent = colorpicker.UI.Button
-                
-                colorpicker.UI.Button.MouseEnter:Connect(function()
-                    local tween = TweenService:Create(colorpicker.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                        BackgroundColor3 = colorpicker.Color:Lerp(Color3.new(1, 1, 1), 0.1)
-                    })
-                    tween:Play()
-                end)
-                
-                colorpicker.UI.Button.MouseLeave:Connect(function()
-                    local tween = TweenService:Create(colorpicker.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                        BackgroundColor3 = colorpicker.Color
-                    })
-                    tween:Play()
-                end)
                 
                 colorpicker.UI.Button.MouseButton1Click:Connect(function()
                     print("ColorPicker clicked (not implemented)")
@@ -663,13 +699,30 @@ function SolaraHub:CreateWindow(options)
                     UI = {}
                 }
                 
+                input.UI.Frame = Instance.new("Frame")
+                input.UI.Frame.Size = UDim2.new(1, -10, 0, 25)
+                input.UI.Frame.BackgroundTransparency = 1
+                input.UI.Frame.Parent = self.UI.Frame
+                
+                input.UI.Label = Instance.new("TextLabel")
+                input.UI.Label.Size = UDim2.new(0.6, 0, 1, 0)
+                input.UI.Label.Text = options.Text or "Input"
+                input.UI.Label.TextColor3 = Color3.fromRGB(200, 200, 200)
+                input.UI.Label.BackgroundTransparency = 1
+                input.UI.Label.Font = Enum.Font.Gotham
+                input.UI.Label.TextSize = 12
+                input.UI.Label.TextXAlignment = Enum.TextXAlignment.Left
+                input.UI.Label.Parent = input.UI.Frame
+                
                 input.UI.TextBox = Instance.new("TextBox")
-                input.UI.TextBox.Size = UDim2.new(1, -10, 0, 25)
-                input.UI.TextBox.Text = options.Text .. ": " .. input.Text
-                input.UI.TextBox.TextColor3 = Color3.fromRGB(180, 180, 180)
+                input.UI.TextBox.Size = UDim2.new(0.4, 0, 1, 0)
+                input.UI.TextBox.Position = UDim2.new(0.6, 0, 0, 0)
+                input.UI.TextBox.Text = input.Text
+                input.UI.TextBox.TextColor3 = Color3.fromRGB(200, 200, 200)
                 input.UI.TextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
-                input.UI.TextBox.Parent = self.UI.Frame
-                input.UI.TextBox.Visible = true
+                input.UI.TextBox.Font = Enum.Font.Gotham
+                input.UI.TextBox.TextSize = 12
+                input.UI.TextBox.Parent = input.UI.Frame
                 
                 local inputCorner = Instance.new("UICorner")
                 inputCorner.CornerRadius = UDim.new(0, 4)
@@ -702,6 +755,8 @@ function SolaraHub:CreateWindow(options)
             if i == index then
                 tab.UI.Content.Visible = true
                 tab.UI.Content.Position = UDim2.new(0, 0, 0, 0)
+                tab.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+                tab.UI.Underline.Visible = true
                 local tweenIn = TweenService:Create(tab.UI.Content, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
                     Position = UDim2.new(0, 0, 0, 0)
                 })
@@ -717,6 +772,8 @@ function SolaraHub:CreateWindow(options)
                 end
                 tweenIn:Play()
             else
+                tab.UI.Button.TextColor3 = Color3.fromRGB(150, 150, 150)
+                tab.UI.Underline.Visible = false
                 local tweenOut = TweenService:Create(tab.UI.Content, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                     Position = UDim2.new(0, 150, 0, 0)
                 })
@@ -735,7 +792,6 @@ function SolaraHub:CreateWindow(options)
                 end)
                 tweenOut:Play()
             end
-            tab.UI.Button.BackgroundColor3 = (i == index) and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(30, 30, 35)
         end
     end
     
