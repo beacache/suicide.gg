@@ -1,6 +1,8 @@
 -- WINDOW CREATE
 local SolaraHub = {}
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local GuiService = game:GetService("GuiService")
 
 function SolaraHub:CreateWindow(options)
     options = options or {}
@@ -11,6 +13,7 @@ function SolaraHub:CreateWindow(options)
             Title = options.Title or "Solara Hub"
         },
         UI = {},
+        IsDragging = false,
         Notify = function(self, message, duration)
             duration = duration or 3
             local notification = Instance.new("Frame")
@@ -54,6 +57,16 @@ function SolaraHub:CreateWindow(options)
                 tweenOut:Play()
             end)
         end,
+        CenterWindow = function(self)
+            if not self.IsDragging then
+                local screenSize = GuiService:GetScreenResolution()
+                local windowSize = self.UI.MainFrame.AbsoluteSize
+                self.UI.MainFrame.Position = UDim2.new(
+                    0.5, -windowSize.X / 2,
+                    0.5, -windowSize.Y / 2
+                )
+            end
+        end,
         ToggleUI = function(self)
             if self.UI.ScreenGui.Enabled then
                 self:HideUI()
@@ -63,11 +76,10 @@ function SolaraHub:CreateWindow(options)
         end,
         ShowUI = function(self)
             self.UI.ScreenGui.Enabled = true
-            self.UI.MainFrame.Position = UDim2.new(0, 20, 0, -400)
+            self:CenterWindow()
             self.UI.MainFrame.Size = UDim2.new(0, 600, 0, 0)
             local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
             local tween = TweenService:Create(self.UI.MainFrame, tweenInfo, {
-                Position = UDim2.new(0, 20, 0, 20),
                 Size = UDim2.new(0, 600, 0, 400),
                 BackgroundTransparency = 0
             })
@@ -86,7 +98,6 @@ function SolaraHub:CreateWindow(options)
         HideUI = function(self)
             local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In)
             local tween = TweenService:Create(self.UI.MainFrame, tweenInfo, {
-                Position = UDim2.new(0, 20, 0, -400),
                 Size = UDim2.new(0, 600, 0, 0),
                 BackgroundTransparency = 1
             })
@@ -116,10 +127,11 @@ function SolaraHub:CreateWindow(options)
     
     window.UI.MainFrame = Instance.new("Frame")
     window.UI.MainFrame.Size = UDim2.new(0, 600, 0, 400)
-    window.UI.MainFrame.Position = UDim2.new(0, 20, 0, 20)
     window.UI.MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
     window.UI.MainFrame.Parent = window.UI.ScreenGui
     window.UI.MainFrame.ClipsDescendants = true
+    
+    window:CenterWindow()
     
     local mainCorner = Instance.new("UICorner")
     mainCorner.CornerRadius = UDim.new(0, 8)
@@ -185,6 +197,7 @@ function SolaraHub:CreateWindow(options)
     window.UI.TitleBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
             dragging = true
+            window.IsDragging = true
             dragStart = input.Position
             startPos = window.UI.MainFrame.Position
             local tween = TweenService:Create(window.UI.MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
@@ -214,6 +227,11 @@ function SolaraHub:CreateWindow(options)
             })
             tween:Play()
         end
+    end)
+
+    -- Обновление позиции при изменении размера экрана
+    game:GetService("RunService").RenderStepped:Connect(function()
+        window:CenterWindow()
     end)
 
 -- TAB CREATION
