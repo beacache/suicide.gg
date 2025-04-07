@@ -183,13 +183,14 @@ function SolaraHub:CreateWindow(options)
 
 -- GROUPBOX CREATION
         function tab:AddLeftGroupbox(name)
+            print("[DEBUG] Creating Groupbox: " .. name)
             local groupbox = {
                 Name = name,
                 UI = {}
             }
             
             groupbox.UI.Frame = Instance.new("Frame")
-            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 30) -- Начальная высота
+            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 30)
             groupbox.UI.Frame.Position = UDim2.new(0, 5, 0, 5)
             groupbox.UI.Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
             groupbox.UI.Frame.Parent = self.UI.Content
@@ -219,12 +220,21 @@ function SolaraHub:CreateWindow(options)
 -- TOGGLE CREATION
             function groupbox:AddToggle(id, options)
                 print("[DEBUG] Adding Toggle: " .. (options.Text or "Toggle"))
+                if not self.UI or not self.UI.Frame then
+                    error("[ERROR] Groupbox UI.Frame is nil!")
+                end
+                
                 local toggle = {
                     State = options.Default or false,
-                    Callback = options.Callback or function() end
+                    Callback = options.Callback or function() end,
+                    UI = {}
                 }
                 
                 toggle.UI.Button = Instance.new("TextButton")
+                if not toggle.UI.Button then
+                    error("[ERROR] Failed to create TextButton for Toggle!")
+                end
+                
                 toggle.UI.Button.Size = UDim2.new(1, -10, 0, 20)
                 toggle.UI.Button.Text = options.Text or "Toggle"
                 toggle.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -248,11 +258,20 @@ function SolaraHub:CreateWindow(options)
 -- BUTTON CREATION
             function groupbox:AddButton(options)
                 print("[DEBUG] Adding Button: " .. (options.Text or "Button"))
+                if not self.UI or not self.UI.Frame then
+                    error("[ERROR] Groupbox UI.Frame is nil!")
+                end
+                
                 local button = {
-                    Func = options.Func or function() end
+                    Func = options.Func or function() end,
+                    UI = {}
                 }
                 
                 button.UI.Button = Instance.new("TextButton")
+                if not button.UI.Button then
+                    error("[ERROR] Failed to create TextButton for Button!")
+                end
+                
                 button.UI.Button.Size = UDim2.new(1, -10, 0, 20)
                 button.UI.Button.Text = options.Text or "Button"
                 button.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -270,11 +289,16 @@ function SolaraHub:CreateWindow(options)
 -- SLIDER CREATION
             function groupbox:AddSlider(id, options)
                 print("[DEBUG] Adding Slider: " .. (options.Text or "Slider"))
+                if not self.UI or not self.UI.Frame then
+                    error("[ERROR] Groupbox UI.Frame is nil!")
+                end
+                
                 local slider = {
                     Value = options.Default or options.Min or 0,
                     Min = options.Min or 0,
                     Max = options.Max or 100,
-                    Callback = options.Callback or function() end
+                    Callback = options.Callback or function() end,
+                    UI = {}
                 }
                 
                 slider.UI.Frame = Instance.new("Frame")
@@ -328,11 +352,16 @@ function SolaraHub:CreateWindow(options)
 -- DROPDOWN CREATION
             function groupbox:AddDropdown(id, options)
                 print("[DEBUG] Adding Dropdown: " .. (options.Text or "Dropdown"))
+                if not self.UI or not self.UI.Frame then
+                    error("[ERROR] Groupbox UI.Frame is nil!")
+                end
+                
                 local dropdown = {
                     Values = options.Values or {},
                     Selected = options.Default or {},
                     Multi = options.Multi or false,
-                    Callback = options.Callback or function() end
+                    Callback = options.Callback or function() end,
+                    UI = {}
                 }
                 
                 dropdown.UI.Button = Instance.new("TextButton")
@@ -353,9 +382,14 @@ function SolaraHub:CreateWindow(options)
 -- COLORPICKER CREATION
             function groupbox:AddColorPicker(id, options)
                 print("[DEBUG] Adding ColorPicker: " .. (options.Title or "Color Picker"))
+                if not self.UI or not self.UI.Frame then
+                    error("[ERROR] Groupbox UI.Frame is nil!")
+                end
+                
                 local colorpicker = {
                     Color = options.Default or Color3.new(1, 1, 1),
-                    Callback = options.Callback or function() end
+                    Callback = options.Callback or function() end,
+                    UI = {}
                 }
                 
                 colorpicker.UI.Button = Instance.new("TextButton")
@@ -376,9 +410,14 @@ function SolaraHub:CreateWindow(options)
 -- INPUT CREATION
             function groupbox:AddInput(id, options)
                 print("[DEBUG] Adding Input: " .. (options.Text or "Input"))
+                if not self.UI or not self.UI.Frame then
+                    error("[ERROR] Groupbox UI.Frame is nil!")
+                end
+                
                 local input = {
                     Text = options.Default or "",
-                    Callback = options.Callback or function() end
+                    Callback = options.Callback or function() end,
+                    UI = {}
                 }
                 
                 input.UI.TextBox = Instance.new("TextBox")
