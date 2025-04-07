@@ -5,6 +5,52 @@ local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
 
+-- Перемещаем Notify в SolaraHub
+function SolaraHub:Notify(message, duration)
+    print("[NOTIFY] " .. message)
+    duration = duration or 3
+    local notification = Instance.new("Frame")
+    notification.Size = UDim2.new(0, 200, 0, 50)
+    notification.Position = UDim2.new(1, -210, 1, -60)
+    notification.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+    notification.Parent = self.ScreenGui or game:GetService("CoreGui") -- Используем CoreGui, если ScreenGui не задан
+    
+    local notifCorner = Instance.new("UICorner")
+    notifCorner.CornerRadius = UDim.new(0, 6)
+    notifCorner.Parent = notification
+    
+    local notifStroke = Instance.new("UIStroke")
+    notifStroke.Color = Color3.fromRGB(50, 50, 60)
+    notifStroke.Thickness = 1
+    notifStroke.Parent = notification
+    
+    local notifLabel = Instance.new("TextLabel")
+    notifLabel.Size = UDim2.new(1, -10, 1, -10)
+    notifLabel.Position = UDim2.new(0, 5, 0, 5)
+    notifLabel.Text = message
+    notifLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    notifLabel.BackgroundTransparency = 1
+    notifLabel.Font = Enum.Font.Gotham
+    notifLabel.TextSize = 12
+    notifLabel.TextWrapped = true
+    notifLabel.Parent = notification
+    
+    local tweenIn = TweenService:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -210, 1, -60)
+    })
+    tweenIn:Play()
+    
+    task.delay(duration, function()
+        local tweenOut = TweenService:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
+            Position = UDim2.new(1, 0, 1, -60)
+        })
+        tweenOut.Completed:Connect(function()
+            notification:Destroy()
+        end)
+        tweenOut:Play()
+    end)
+end
+
 function SolaraHub:CreateWindow(options)
     options = options or {}
     
@@ -15,50 +61,6 @@ function SolaraHub:CreateWindow(options)
         },
         UI = {},
         IsDragging = false,
-        Notify = function(self, message, duration)
-            print("[NOTIFY] " .. message)
-            duration = duration or 3
-            local notification = Instance.new("Frame")
-            notification.Size = UDim2.new(0, 200, 0, 50)
-            notification.Position = UDim2.new(1, -210, 1, -60)
-            notification.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-            notification.Parent = self.UI.ScreenGui
-            
-            local notifCorner = Instance.new("UICorner")
-            notifCorner.CornerRadius = UDim.new(0, 6)
-            notifCorner.Parent = notification
-            
-            local notifStroke = Instance.new("UIStroke")
-            notifStroke.Color = Color3.fromRGB(50, 50, 60)
-            notifStroke.Thickness = 1
-            notifStroke.Parent = notification
-            
-            local notifLabel = Instance.new("TextLabel")
-            notifLabel.Size = UDim2.new(1, -10, 1, -10)
-            notifLabel.Position = UDim2.new(0, 5, 0, 5)
-            notifLabel.Text = message
-            notifLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-            notifLabel.BackgroundTransparency = 1
-            notifLabel.Font = Enum.Font.Gotham
-            notifLabel.TextSize = 12
-            notifLabel.TextWrapped = true
-            notifLabel.Parent = notification
-            
-            local tweenIn = TweenService:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                Position = UDim2.new(1, -210, 1, -60)
-            })
-            tweenIn:Play()
-            
-            task.delay(duration, function()
-                local tweenOut = TweenService:Create(notification, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                    Position = UDim2.new(1, 0, 1, -60)
-                })
-                tweenOut.Completed:Connect(function()
-                    notification:Destroy()
-                end)
-                tweenOut:Play()
-            end)
-        end,
         CenterWindow = function(self)
             if not self.IsDragging then
                 local viewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
@@ -155,6 +157,9 @@ function SolaraHub:CreateWindow(options)
     window.UI.ScreenGui.Enabled = false
     print("[DEBUG] ScreenGui created, Enabled = " .. tostring(window.UI.ScreenGui.Enabled))
     
+    -- Сохраняем ScreenGui в SolaraHub для использования в Notify
+    SolaraHub.ScreenGui = window.UI.ScreenGui
+    
     print("[DEBUG] Creating MainFrame")
     window.UI.MainFrame = Instance.new("Frame")
     window.UI.MainFrame.Size = UDim2.new(0, 600, 0, 400)
@@ -200,7 +205,6 @@ function SolaraHub:CreateWindow(options)
     window.UI.Title.TextXAlignment = Enum.TextXAlignment.Left
     window.UI.Title.Parent = window.UI.TitleBar
     
-    -- Новая панель для горизонтальных табов
     window.UI.TabButtons = Instance.new("Frame")
     window.UI.TabButtons.Size = UDim2.new(1, 0, 0, 40)
     window.UI.TabButtons.Position = UDim2.new(0, 0, 0, 40)
@@ -214,7 +218,7 @@ function SolaraHub:CreateWindow(options)
     tabButtonsLayout.Parent = window.UI.TabButtons
     
     window.UI.Content = Instance.new("Frame")
-    window.UI.Content.Size = UDim2.new(1, 0, 1, -80) -- Учитываем высоту заголовка и табов
+    window.UI.Content.Size = UDim2.new(1, 0, 1, -80)
     window.UI.Content.Position = UDim2.new(0, 0, 0, 80)
     window.UI.Content.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
     window.UI.Content.ClipsDescendants = true
@@ -275,9 +279,8 @@ function SolaraHub:CreateWindow(options)
             UI = {}
         }
         
-        -- Кнопка таба
         tab.UI.Button = Instance.new("TextButton")
-        tab.UI.Button.Size = UDim2.new(1 / 4, -5, 0, 30) -- Делим ширину на количество табов (максимум 4 таба)
+        tab.UI.Button.Size = UDim2.new(1 / 4, -5, 0, 30)
         tab.UI.Button.Text = name
         tab.UI.Button.TextColor3 = Color3.fromRGB(200, 200, 200)
         tab.UI.Button.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
@@ -330,7 +333,6 @@ function SolaraHub:CreateWindow(options)
             self:SwitchTab(1)
         end
         
-        -- Обновляем размеры табов при добавлении нового
         for _, t in ipairs(self.Tabs) do
             t.UI.Button.Size = UDim2.new(1 / #self.Tabs, -5, 0, 30)
         end
