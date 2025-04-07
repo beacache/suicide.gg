@@ -16,7 +16,7 @@ function SolaraHub:CreateWindow(options)
         UI = {},
         IsDragging = false,
         Notify = function(self, message, duration)
-            print("[NOTIFY] " .. message) -- Отладка в консоль
+            print("[NOTIFY] " .. message)
             duration = duration or 3
             local notification = Instance.new("Frame")
             notification.Size = UDim2.new(0, 200, 0, 50)
@@ -68,7 +68,7 @@ function SolaraHub:CreateWindow(options)
                     0.5, -windowSize.Y / 2
                 )
                 self.UI.MainFrame.Position = newPos
-                print("[DEBUG] Centering window at position: " .. tostring(newPos)) -- Отладка
+                print("[DEBUG] Centering window at position: " .. tostring(newPos))
             end
         end,
         ResetUI = function(self)
@@ -200,19 +200,22 @@ function SolaraHub:CreateWindow(options)
     window.UI.Title.TextXAlignment = Enum.TextXAlignment.Left
     window.UI.Title.Parent = window.UI.TitleBar
     
+    -- Новая панель для горизонтальных табов
     window.UI.TabButtons = Instance.new("Frame")
-    window.UI.TabButtons.Size = UDim2.new(0, 150, 1, -40)
+    window.UI.TabButtons.Size = UDim2.new(1, 0, 0, 40)
     window.UI.TabButtons.Position = UDim2.new(0, 0, 0, 40)
-    window.UI.TabButtons.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+    window.UI.TabButtons.BackgroundTransparency = 1
     window.UI.TabButtons.Parent = window.UI.MainFrame
     
-    local tabButtonsCorner = Instance.new("UICorner")
-    tabButtonsCorner.CornerRadius = UDim.new(0, 8)
-    tabButtonsCorner.Parent = window.UI.TabButtons
+    local tabButtonsLayout = Instance.new("UIListLayout")
+    tabButtonsLayout.FillDirection = Enum.FillDirection.Horizontal
+    tabButtonsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    tabButtonsLayout.Padding = UDim.new(0, 5)
+    tabButtonsLayout.Parent = window.UI.TabButtons
     
     window.UI.Content = Instance.new("Frame")
-    window.UI.Content.Size = UDim2.new(1, -150, 1, -40)
-    window.UI.Content.Position = UDim2.new(0, 150, 0, 40)
+    window.UI.Content.Size = UDim2.new(1, 0, 1, -80) -- Учитываем высоту заголовка и табов
+    window.UI.Content.Position = UDim2.new(0, 0, 0, 80)
     window.UI.Content.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
     window.UI.Content.ClipsDescendants = true
     window.UI.Content.Parent = window.UI.MainFrame
@@ -260,7 +263,6 @@ function SolaraHub:CreateWindow(options)
         end
     end)
 
-    -- Обновление позиции при изменении размера экрана
     RunService.RenderStepped:Connect(function()
         window:CenterWindow()
     end)
@@ -273,11 +275,11 @@ function SolaraHub:CreateWindow(options)
             UI = {}
         }
         
+        -- Кнопка таба
         tab.UI.Button = Instance.new("TextButton")
-        tab.UI.Button.Size = UDim2.new(1, -10, 0, 35)
-        tab.UI.Button.Position = UDim2.new(0, 5, 0, 5 + (#self.Tabs * 40))
+        tab.UI.Button.Size = UDim2.new(1 / 4, -5, 0, 30) -- Делим ширину на количество табов (максимум 4 таба)
         tab.UI.Button.Text = name
-        tab.UI.Button.TextColor3 = Color3.fromRGB(180, 180, 180)
+        tab.UI.Button.TextColor3 = Color3.fromRGB(200, 200, 200)
         tab.UI.Button.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
         tab.UI.Button.Font = Enum.Font.GothamSemibold
         tab.UI.Button.TextSize = 14
@@ -288,16 +290,16 @@ function SolaraHub:CreateWindow(options)
         tabButtonCorner.Parent = tab.UI.Button
         
         tab.UI.Button.MouseEnter:Connect(function()
-            if tab.UI.Button.BackgroundColor3 ~= Color3.fromRGB(40, 40, 45) then
+            if tab.UI.Button.BackgroundColor3 ~= Color3.fromRGB(50, 50, 55) then
                 local tween = TweenService:Create(tab.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                    BackgroundColor3 = Color3.fromRGB(35, 35, 40)
+                    BackgroundColor3 = Color3.fromRGB(40, 40, 45)
                 })
                 tween:Play()
             end
         end)
         
         tab.UI.Button.MouseLeave:Connect(function()
-            if tab.UI.Button.BackgroundColor3 ~= Color3.fromRGB(40, 40, 45) then
+            if tab.UI.Button.BackgroundColor3 ~= Color3.fromRGB(50, 50, 55) then
                 local tween = TweenService:Create(tab.UI.Button, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
                     BackgroundColor3 = Color3.fromRGB(30, 30, 35)
                 })
@@ -326,6 +328,11 @@ function SolaraHub:CreateWindow(options)
         
         if #self.Tabs == 1 then
             self:SwitchTab(1)
+        end
+        
+        -- Обновляем размеры табов при добавлении нового
+        for _, t in ipairs(self.Tabs) do
+            t.UI.Button.Size = UDim2.new(1 / #self.Tabs, -5, 0, 30)
         end
         
         tab.UI.Button.MouseButton1Click:Connect(function()
@@ -692,9 +699,9 @@ function SolaraHub:CreateWindow(options)
         for i, tab in ipairs(self.Tabs) do
             if i == index then
                 tab.UI.Content.Visible = true
-                tab.UI.Content.Position = UDim2.new(0, 150, 0, 40)
+                tab.UI.Content.Position = UDim2.new(0, 0, 0, 0)
                 local tweenIn = TweenService:Create(tab.UI.Content, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-                    Position = UDim2.new(0, 150, 0, 40)
+                    Position = UDim2.new(0, 0, 0, 0)
                 })
                 for _, child in pairs(tab.UI.Content:GetDescendants()) do
                     if child:IsA("GuiObject") then
@@ -709,7 +716,7 @@ function SolaraHub:CreateWindow(options)
                 tweenIn:Play()
             else
                 local tweenOut = TweenService:Create(tab.UI.Content, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {
-                    Position = UDim2.new(0, 300, 0, 40)
+                    Position = UDim2.new(0, 150, 0, 0)
                 })
                 for _, child in pairs(tab.UI.Content:GetDescendants()) do
                     if child:IsA("GuiObject") then
@@ -726,7 +733,7 @@ function SolaraHub:CreateWindow(options)
                 end)
                 tweenOut:Play()
             end
-            tab.UI.Button.BackgroundColor3 = (i == index) and Color3.fromRGB(40, 40, 45) or Color3.fromRGB(30, 30, 35)
+            tab.UI.Button.BackgroundColor3 = (i == index) and Color3.fromRGB(50, 50, 55) or Color3.fromRGB(30, 30, 35)
         end
     end
     
