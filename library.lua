@@ -157,6 +157,10 @@ function SolaraHub:CreateWindow(options)
         contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
         contentLayout.Parent = tab.UI.Content
         
+        contentLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            tab.UI.Content.CanvasSize = UDim2.new(0, 0, 0, contentLayout.AbsoluteContentSize.Y)
+        end)
+        
         table.insert(self.Tabs, tab)
         
         if #self.Tabs == 1 then
@@ -175,8 +179,8 @@ function SolaraHub:CreateWindow(options)
             }
             
             groupbox.UI.Frame = Instance.new("Frame")
-            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 200)
-            groupbox.UI.Frame.Position = UDim2.new(0, 5, 0, 5 + (#self.Elements * 210))
+            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 0)
+            groupbox.UI.Frame.Position = UDim2.new(0, 5, 0, 5)
             groupbox.UI.Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
             groupbox.UI.Frame.Parent = self.UI.Content
             groupbox.UI.Frame.LayoutOrder = #self.Elements
@@ -195,8 +199,12 @@ function SolaraHub:CreateWindow(options)
             groupboxLayout.SortOrder = Enum.SortOrder.LayoutOrder
             groupboxLayout.Parent = groupbox.UI.Frame
             
+            groupboxLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+                groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, groupboxLayout.AbsoluteContentSize.Y)
+                tab.UI.Content.CanvasSize = UDim2.new(0, 0, 0, tab.UI.Content.UIListLayout.AbsoluteContentSize.Y)
+            end)
+            
             table.insert(self.Elements, groupbox)
-            self.UI.Content.CanvasSize = UDim2.new(0, 0, 0, self.UI.Content.UIListLayout.AbsoluteContentSize.Y)
 
 -- TOGGLE CREATION
             function groupbox:AddToggle(id, options)
@@ -371,7 +379,7 @@ function SolaraHub:CreateWindow(options)
 -- RIGHT GROUPBOX CREATION
         function tab:AddRightGroupbox(name)
             local groupbox = tab:AddLeftGroupbox(name)
-            groupbox.UI.Frame.Position = UDim2.new(0.5, 5, 0, 5 + (#self.Elements * 210))
+            groupbox.UI.Frame.Position = UDim2.new(0.5, 5, 0, 5)
             return groupbox
         end
         
