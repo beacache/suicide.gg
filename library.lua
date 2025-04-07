@@ -3,6 +3,7 @@ local SolaraHub = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
+local RunService = game:GetService("RunService")
 
 function SolaraHub:CreateWindow(options)
     options = options or {}
@@ -15,6 +16,7 @@ function SolaraHub:CreateWindow(options)
         UI = {},
         IsDragging = false,
         Notify = function(self, message, duration)
+            print("[NOTIFY] " .. message) -- Отладка в консоль
             duration = duration or 3
             local notification = Instance.new("Frame")
             notification.Size = UDim2.new(0, 200, 0, 50)
@@ -59,15 +61,35 @@ function SolaraHub:CreateWindow(options)
         end,
         CenterWindow = function(self)
             if not self.IsDragging then
-                local screenSize = GuiService:GetScreenResolution()
+                local viewportSize = game:GetService("Workspace").CurrentCamera.ViewportSize
                 local windowSize = self.UI.MainFrame.AbsoluteSize
-                self.UI.MainFrame.Position = UDim2.new(
+                local newPos = UDim2.new(
                     0.5, -windowSize.X / 2,
                     0.5, -windowSize.Y / 2
                 )
+                self.UI.MainFrame.Position = newPos
+                print("[DEBUG] Centering window at position: " .. tostring(newPos)) -- Отладка
             end
         end,
+        ResetUI = function(self)
+            print("[DEBUG] Resetting UI state")
+            self.UI.ScreenGui.Enabled = true
+            self.UI.MainFrame.BackgroundTransparency = 0
+            self.UI.MainFrame.Size = UDim2.new(0, 600, 0, 400)
+            for _, child in pairs(self.UI.MainFrame:GetDescendants()) do
+                if child:IsA("GuiObject") then
+                    if child:IsA("TextLabel") or child:IsA("TextButton") then
+                        child.TextTransparency = 0
+                    end
+                    if child:IsA("Frame") or child:IsA("TextButton") then
+                        child.BackgroundTransparency = 0
+                    end
+                end
+            end
+            self:CenterWindow()
+        end,
         ToggleUI = function(self)
+            print("[DEBUG] Toggling UI, current state: " .. tostring(self.UI.ScreenGui.Enabled))
             if self.UI.ScreenGui.Enabled then
                 self:HideUI()
             else
@@ -75,9 +97,11 @@ function SolaraHub:CreateWindow(options)
             end
         end,
         ShowUI = function(self)
+            print("[DEBUG] Showing UI")
             self.UI.ScreenGui.Enabled = true
             self:CenterWindow()
             self.UI.MainFrame.Size = UDim2.new(0, 600, 0, 0)
+            self.UI.MainFrame.BackgroundTransparency = 1
             local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
             local tween = TweenService:Create(self.UI.MainFrame, tweenInfo, {
                 Size = UDim2.new(0, 600, 0, 400),
@@ -86,16 +110,19 @@ function SolaraHub:CreateWindow(options)
             for _, child in pairs(self.UI.MainFrame:GetDescendants()) do
                 if child:IsA("GuiObject") then
                     if child:IsA("TextLabel") or child:IsA("TextButton") then
+                        child.TextTransparency = 1
                         TweenService:Create(child, tweenInfo, {TextTransparency = 0}):Play()
                     end
                     if child:IsA("Frame") or child:IsA("TextButton") then
-                        TweenService:Create(child, tweenInfo, {BackgroundTransparency = child.BackgroundTransparency - 0.5}):Play()
+                        child.BackgroundTransparency = 1
+                        TweenService:Create(child, tweenInfo, {BackgroundTransparency = 0}):Play()
                     end
                 end
             end
             tween:Play()
         end,
         HideUI = function(self)
+            print("[DEBUG] Hiding UI")
             local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.In)
             local tween = TweenService:Create(self.UI.MainFrame, tweenInfo, {
                 Size = UDim2.new(0, 600, 0, 0),
@@ -113,18 +140,22 @@ function SolaraHub:CreateWindow(options)
             end
             tween.Completed:Connect(function()
                 self.UI.ScreenGui.Enabled = false
+                print("[DEBUG] UI hidden, ScreenGui.Enabled = false")
             end)
             tween:Play()
         end
     }
     
+    print("[DEBUG] Creating ScreenGui")
     window.UI.ScreenGui = Instance.new("ScreenGui")
     window.UI.ScreenGui.Name = "SolaraHub"
     window.UI.ScreenGui.Parent = game:GetService("CoreGui")
     window.UI.ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
     window.UI.ScreenGui.ResetOnSpawn = false
     window.UI.ScreenGui.Enabled = false
+    print("[DEBUG] ScreenGui created, Enabled = " .. tostring(window.UI.ScreenGui.Enabled))
     
+    print("[DEBUG] Creating MainFrame")
     window.UI.MainFrame = Instance.new("Frame")
     window.UI.MainFrame.Size = UDim2.new(0, 600, 0, 400)
     window.UI.MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
@@ -230,7 +261,7 @@ function SolaraHub:CreateWindow(options)
     end)
 
     -- Обновление позиции при изменении размера экрана
-    game:GetService("RunService").RenderStepped:Connect(function()
+    RunService.RenderStepped:Connect(function()
         window:CenterWindow()
     end)
 
@@ -671,7 +702,7 @@ function SolaraHub:CreateWindow(options)
                             TweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
                         end
                         if child:IsA("Frame") or child:IsA("TextButton") then
-                            TweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = child.BackgroundTransparency - 0.5}):Play()
+                            TweenService:Create(child, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
                         end
                     end
                 end
