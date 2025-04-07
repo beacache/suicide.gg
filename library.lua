@@ -34,7 +34,12 @@ function SolaraHub:CreateWindow(options)
             })
             for _, child in pairs(self.UI.MainFrame:GetDescendants()) do
                 if child:IsA("GuiObject") then
-                    TweenService:Create(child, tweenInfo, {BackgroundTransparency = child.BackgroundTransparency - 0.5, TextTransparency = 0}):Play()
+                    if child:IsA("TextLabel") or child:IsA("TextButton") then
+                        TweenService:Create(child, tweenInfo, {TextTransparency = 0}):Play()
+                    end
+                    if child:IsA("Frame") or child:IsA("TextButton") then
+                        TweenService:Create(child, tweenInfo, {BackgroundTransparency = child.BackgroundTransparency - 0.5}):Play()
+                    end
                 end
             end
             tween:Play()
@@ -47,7 +52,12 @@ function SolaraHub:CreateWindow(options)
             })
             for _, child in pairs(self.UI.MainFrame:GetDescendants()) do
                 if child:IsA("GuiObject") then
-                    TweenService:Create(child, tweenInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+                    if child:IsA("TextLabel") or child:IsA("TextButton") then
+                        TweenService:Create(child, tweenInfo, {TextTransparency = 1}):Play()
+                    end
+                    if child:IsA("Frame") or child:IsA("TextButton") then
+                        TweenService:Create(child, tweenInfo, {BackgroundTransparency = 1}):Play()
+                    end
                 end
             end
             tween.Completed:Connect(function()
@@ -179,7 +189,7 @@ function SolaraHub:CreateWindow(options)
             }
             
             groupbox.UI.Frame = Instance.new("Frame")
-            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 0)
+            groupbox.UI.Frame.Size = UDim2.new(0.45, 0, 0, 30) -- Начальная высота
             groupbox.UI.Frame.Position = UDim2.new(0, 5, 0, 5)
             groupbox.UI.Frame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
             groupbox.UI.Frame.Parent = self.UI.Content
@@ -208,6 +218,7 @@ function SolaraHub:CreateWindow(options)
 
 -- TOGGLE CREATION
             function groupbox:AddToggle(id, options)
+                print("[DEBUG] Adding Toggle: " .. (options.Text or "Toggle"))
                 local toggle = {
                     State = options.Default or false,
                     Callback = options.Callback or function() end
@@ -219,6 +230,7 @@ function SolaraHub:CreateWindow(options)
                 toggle.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 toggle.UI.Button.BackgroundColor3 = toggle.State and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
                 toggle.UI.Button.Parent = self.UI.Frame
+                toggle.UI.Button.Visible = true
                 
                 toggle.UI.Button.MouseButton1Click:Connect(function()
                     toggle.State = not toggle.State
@@ -235,6 +247,7 @@ function SolaraHub:CreateWindow(options)
 
 -- BUTTON CREATION
             function groupbox:AddButton(options)
+                print("[DEBUG] Adding Button: " .. (options.Text or "Button"))
                 local button = {
                     Func = options.Func or function() end
                 }
@@ -245,6 +258,7 @@ function SolaraHub:CreateWindow(options)
                 button.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 button.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
                 button.UI.Button.Parent = self.UI.Frame
+                button.UI.Button.Visible = true
                 
                 button.UI.Button.MouseButton1Click:Connect(function()
                     button.Func()
@@ -255,6 +269,7 @@ function SolaraHub:CreateWindow(options)
 
 -- SLIDER CREATION
             function groupbox:AddSlider(id, options)
+                print("[DEBUG] Adding Slider: " .. (options.Text or "Slider"))
                 local slider = {
                     Value = options.Default or options.Min or 0,
                     Min = options.Min or 0,
@@ -266,6 +281,7 @@ function SolaraHub:CreateWindow(options)
                 slider.UI.Frame.Size = UDim2.new(1, -10, 0, 30)
                 slider.UI.Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
                 slider.UI.Frame.Parent = self.UI.Frame
+                slider.UI.Frame.Visible = true
                 
                 slider.UI.Label = Instance.new("TextLabel")
                 slider.UI.Label.Size = UDim2.new(1, 0, 0, 20)
@@ -273,12 +289,14 @@ function SolaraHub:CreateWindow(options)
                 slider.UI.Label.TextColor3 = Color3.fromRGB(255, 255, 255)
                 slider.UI.Label.BackgroundTransparency = 1
                 slider.UI.Label.Parent = slider.UI.Frame
+                slider.UI.Label.Visible = true
                 
                 slider.UI.SliderBar = Instance.new("Frame")
                 slider.UI.SliderBar.Size = UDim2.new(1, 0, 0, 5)
                 slider.UI.SliderBar.Position = UDim2.new(0, 0, 1, -5)
                 slider.UI.SliderBar.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
                 slider.UI.SliderBar.Parent = slider.UI.Frame
+                slider.UI.SliderBar.Visible = true
                 
                 local mouse = game.Players.LocalPlayer:GetMouse()
                 local dragging = false
@@ -309,6 +327,7 @@ function SolaraHub:CreateWindow(options)
 
 -- DROPDOWN CREATION
             function groupbox:AddDropdown(id, options)
+                print("[DEBUG] Adding Dropdown: " .. (options.Text or "Dropdown"))
                 local dropdown = {
                     Values = options.Values or {},
                     Selected = options.Default or {},
@@ -322,6 +341,7 @@ function SolaraHub:CreateWindow(options)
                 dropdown.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 dropdown.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
                 dropdown.UI.Button.Parent = self.UI.Frame
+                dropdown.UI.Button.Visible = true
                 
                 dropdown.UI.Button.MouseButton1Click:Connect(function()
                     print("Dropdown clicked (not implemented)")
@@ -332,6 +352,7 @@ function SolaraHub:CreateWindow(options)
 
 -- COLORPICKER CREATION
             function groupbox:AddColorPicker(id, options)
+                print("[DEBUG] Adding ColorPicker: " .. (options.Title or "Color Picker"))
                 local colorpicker = {
                     Color = options.Default or Color3.new(1, 1, 1),
                     Callback = options.Callback or function() end
@@ -343,6 +364,7 @@ function SolaraHub:CreateWindow(options)
                 colorpicker.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 colorpicker.UI.Button.BackgroundColor3 = colorpicker.Color
                 colorpicker.UI.Button.Parent = self.UI.Frame
+                colorpicker.UI.Button.Visible = true
                 
                 colorpicker.UI.Button.MouseButton1Click:Connect(function()
                     print("ColorPicker clicked (not implemented)")
@@ -353,6 +375,7 @@ function SolaraHub:CreateWindow(options)
 
 -- INPUT CREATION
             function groupbox:AddInput(id, options)
+                print("[DEBUG] Adding Input: " .. (options.Text or "Input"))
                 local input = {
                     Text = options.Default or "",
                     Callback = options.Callback or function() end
@@ -364,6 +387,7 @@ function SolaraHub:CreateWindow(options)
                 input.UI.TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
                 input.UI.TextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
                 input.UI.TextBox.Parent = self.UI.Frame
+                input.UI.TextBox.Visible = true
                 
                 input.UI.TextBox.FocusLost:Connect(function()
                     input.Text = input.UI.TextBox.Text
