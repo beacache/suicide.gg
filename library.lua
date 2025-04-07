@@ -1,5 +1,6 @@
 -- WINDOW CREATE
 local SolaraHub = {}
+local TweenService = game:GetService("TweenService")
 
 function SolaraHub:CreateWindow(options)
     options = options or {}
@@ -18,7 +19,41 @@ function SolaraHub:CreateWindow(options)
             print("[SolaraHub] " .. message)
         end,
         ToggleUI = function(self)
-            self.UI.ScreenGui.Enabled = not self.UI.ScreenGui.Enabled
+            if self.UI.ScreenGui.Enabled then
+                self:HideUI()
+            else
+                self:ShowUI()
+            end
+        end,
+        ShowUI = function(self)
+            self.UI.ScreenGui.Enabled = true
+            local tweenInfo = TweenInfo.new(self.Options.MenuFadeTime, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+            local tween = TweenService:Create(self.UI.MainFrame, tweenInfo, {
+                BackgroundTransparency = 0,
+                Position = self.UI.MainFrame.Position
+            })
+            for _, child in pairs(self.UI.MainFrame:GetDescendants()) do
+                if child:IsA("GuiObject") then
+                    TweenService:Create(child, tweenInfo, {BackgroundTransparency = child.BackgroundTransparency - 0.5, TextTransparency = 0}):Play()
+                end
+            end
+            tween:Play()
+        end,
+        HideUI = function(self)
+            local tweenInfo = TweenInfo.new(self.Options.MenuFadeTime, Enum.EasingStyle.Sine, Enum.EasingDirection.In)
+            local tween = TweenService:Create(self.UI.MainFrame, tweenInfo, {
+                BackgroundTransparency = 1,
+                Position = self.UI.MainFrame.Position + UDim2.new(0, 0, 0, 50)
+            })
+            for _, child in pairs(self.UI.MainFrame:GetDescendants()) do
+                if child:IsA("GuiObject") then
+                    TweenService:Create(child, tweenInfo, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+                end
+            end
+            tween.Completed:Connect(function()
+                self.UI.ScreenGui.Enabled = false
+            end)
+            tween:Play()
         end
     }
     
@@ -61,6 +96,36 @@ function SolaraHub:CreateWindow(options)
     window.UI.Content.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
     window.UI.Content.ClipsDescendants = true
     window.UI.Content.Parent = window.UI.MainFrame
+
+    local dragging = false
+    local dragStart = nil
+    local startPos = nil
+
+    window.UI.MainFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragStart = input.Position
+            startPos = window.UI.MainFrame.Position
+        end
+    end)
+
+    window.UI.MainFrame.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+            local delta = input.Position - dragStart
+            window.UI.MainFrame.Position = UDim2.new(
+                startPos.X.Scale,
+                startPos.X.Offset + delta.X,
+                startPos.Y.Scale,
+                startPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    window.UI.MainFrame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
 
 -- TAB CREATION
     function window:AddTab(name)
@@ -127,6 +192,7 @@ function SolaraHub:CreateWindow(options)
             
             local groupboxLayout = Instance.new("UIListLayout")
             groupboxLayout.Padding = UDim.new(0, 5)
+            groupboxLayout.SortOrder = Enum.SortOrder.LayoutOrder
             groupboxLayout.Parent = groupbox.UI.Frame
             
             table.insert(self.Elements, groupbox)
@@ -141,7 +207,6 @@ function SolaraHub:CreateWindow(options)
                 
                 toggle.UI.Button = Instance.new("TextButton")
                 toggle.UI.Button.Size = UDim2.new(1, -10, 0, 20)
-                toggle.UI.Button.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 2) * 25)
                 toggle.UI.Button.Text = options.Text or "Toggle"
                 toggle.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 toggle.UI.Button.BackgroundColor3 = toggle.State and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
@@ -168,7 +233,6 @@ function SolaraHub:CreateWindow(options)
                 
                 button.UI.Button = Instance.new("TextButton")
                 button.UI.Button.Size = UDim2.new(1, -10, 0, 20)
-                button.UI.Button.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 2) * 25)
                 button.UI.Button.Text = options.Text or "Button"
                 button.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 button.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
@@ -192,7 +256,6 @@ function SolaraHub:CreateWindow(options)
                 
                 slider.UI.Frame = Instance.new("Frame")
                 slider.UI.Frame.Size = UDim2.new(1, -10, 0, 30)
-                slider.UI.Frame.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 2) * 25)
                 slider.UI.Frame.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
                 slider.UI.Frame.Parent = self.UI.Frame
                 
@@ -247,7 +310,6 @@ function SolaraHub:CreateWindow(options)
                 
                 dropdown.UI.Button = Instance.new("TextButton")
                 dropdown.UI.Button.Size = UDim2.new(1, -10, 0, 20)
-                dropdown.UI.Button.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 2) * 25)
                 dropdown.UI.Button.Text = options.Text .. ": " .. (dropdown.Multi and table.concat(dropdown.Selected, ", ") or dropdown.Selected)
                 dropdown.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 dropdown.UI.Button.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
@@ -269,7 +331,6 @@ function SolaraHub:CreateWindow(options)
                 
                 colorpicker.UI.Button = Instance.new("TextButton")
                 colorpicker.UI.Button.Size = UDim2.new(1, -10, 0, 20)
-                colorpicker.UI.Button.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 2) * 25)
                 colorpicker.UI.Button.Text = options.Title or "Color Picker"
                 colorpicker.UI.Button.TextColor3 = Color3.fromRGB(255, 255, 255)
                 colorpicker.UI.Button.BackgroundColor3 = colorpicker.Color
@@ -291,7 +352,6 @@ function SolaraHub:CreateWindow(options)
                 
                 input.UI.TextBox = Instance.new("TextBox")
                 input.UI.TextBox.Size = UDim2.new(1, -10, 0, 20)
-                input.UI.TextBox.Position = UDim2.new(0, 5, 0, 25 + (#self.UI.Frame:GetChildren() - 2) * 25)
                 input.UI.TextBox.Text = options.Text .. ": " .. input.Text
                 input.UI.TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
                 input.UI.TextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
@@ -327,7 +387,7 @@ function SolaraHub:CreateWindow(options)
     end
     
     if window.Options.AutoShow then
-        window.UI.ScreenGui.Enabled = true
+        window:ShowUI()
     end
     
     return window
